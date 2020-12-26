@@ -1,6 +1,7 @@
-# Historical-Quote-Data
+# Last Price Sec Saver
 
-The intention was to get a years worth of historical quote data (minute interval) via the TDAmeritrade API. 
-Although they only provide up to the past 2 months of that data...
+Gets specified stock prices each second & saves it to a mysql database.
 
-Uses a more manual implemention of TDAmeritrade OAuth2 login... Since it's running in a container.
+I can't find reliable data like this anywhere online...
+Usually this data is available as "tick" data... Or if it is available as per "second" data, there's often times huge gaps missing every few minutes... Which just isn't sufficient for my needs.
+Realistically, you can only query the API every ~1sec (I don't own a high frequency firm with microsecond latency to stock exchange servers, so going down to the 'tick' is unrealistic, and unnecessary)... Thus "tick" data isn't sufficient, thus the development of this application.
