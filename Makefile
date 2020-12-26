@@ -1,18 +1,11 @@
+auth:
+	echo some authentication steps here
+
 build:
-	docker build \
-		--no-cache \
-		-t historical_quote_data .
+	docker-compose build --no-cache
 
 run:
-	docker run -i \
-		-v logs:/app/logs \
-		-v data:/app/data \
-		-v HistoricalQuoteData:/app/HistoricalQuoteData \
-		-t historical_quote_data
+	docker-compose up
 
-run_detatched:
-	docker run -d \
-		-v logs:/app/logs \
-		-v data:/app/data \
-		-v HistoricalQuoteData:/app/HistoricalQuoteData \
-		-t historical_quote_data
+clean:
+	docker-compose down

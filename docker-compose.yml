@@ -1,0 +1,15 @@
+version: '3.7'
+services:
+  main_box:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    ports:
+      - "42069:42069"
+    env_file:
+      - .env
+    volumes:
+      - ./logs:/app/logs
+      - ./data:/app/data
+      - ./token:/app/token
+      - ./HistoricalQuoteData:/app/HistoricalQuoteData
