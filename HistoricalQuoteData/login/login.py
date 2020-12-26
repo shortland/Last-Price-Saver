@@ -5,6 +5,7 @@ import requests
 import urllib.parse
 
 import tda
+from authlib.oauth2.rfc6749 import OAuth2Token
 
 from HistoricalQuoteData.config.env import (
     QUOTE_SYMBOL,
@@ -64,8 +65,10 @@ def setup() -> tda.client.Client:
 
             return None
 
+        oauth2_token = OAuth2Token(json.loads(tokens.text))
+
         with open(TOKEN_PATH, 'w') as f:
-            json.dump(tokens.json(), f)
+            json.dump(oauth2_token, f)
 
         return tda.auth.client_from_token_file(
             TOKEN_PATH,

@@ -3,3 +3,4 @@
 __pycache__/
 token/
 logs/
+.DS_Store
