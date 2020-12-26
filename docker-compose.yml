@@ -1,6 +1,6 @@
 version: '3.7'
 services:
-  main_box:
+  main-box:
     build:
       context: .
       dockerfile: ./Dockerfile
@@ -13,10 +13,12 @@ services:
       - ./data:/app/data
       - ./token:/app/token
       - ./LastPriceSaver:/app/LastPriceSaver
-  maria_db:
-    image: mariadb
+  lps-db:
+    build:
+      context: .
+      dockerfile: ./db/Dockerfile
     restart: always
     env_file:
       - .env
     volumes:
-      - ./db:/var/lib/mysql
+      - ./db/volume:/var/lib/mysql
