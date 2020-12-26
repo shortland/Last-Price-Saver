@@ -2,7 +2,7 @@ import datetime
 
 from loguru import logger
 
-from HistoricalQuoteData.config.env import (
+from LastPriceSaver.config.env import (
     LOG_PATH,
     LOG_LEVEL
 )

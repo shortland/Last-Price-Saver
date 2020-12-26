@@ -9,12 +9,12 @@ import urllib.parse
 
 import tda
 
-from HistoricalQuoteData.config.env import (
+from LastPriceSaver.config.env import (
     QUOTE_SYMBOL,
     DATA_PATH
 )
-from HistoricalQuoteData.utils.logger import logger
-from HistoricalQuoteData.login import login
+from LastPriceSaver.utils.logger import logger
+from LastPriceSaver.login import login
 
 
 def main() -> None:

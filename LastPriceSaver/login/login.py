@@ -7,14 +7,14 @@ import urllib.parse
 import tda
 from authlib.oauth2.rfc6749 import OAuth2Token
 
-from HistoricalQuoteData.config.env import (
+from LastPriceSaver.config.env import (
     QUOTE_SYMBOL,
     API_KEY,
     REDIRECT_URI,
     TOKEN_PATH,
     AUTH_CODE
 )
-from HistoricalQuoteData.utils.logger import logger
+from LastPriceSaver.utils.logger import logger
 
 
 def setup() -> tda.client.Client:

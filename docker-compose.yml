@@ -12,4 +12,4 @@ services:
       - ./logs:/app/logs
       - ./data:/app/data
       - ./token:/app/token
-      - ./HistoricalQuoteData:/app/HistoricalQuoteData
+      - ./LastPriceSaver:/app/LastPriceSaver

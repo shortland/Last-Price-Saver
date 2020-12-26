@@ -12,7 +12,7 @@ RUN cp /usr/bin/python3 /usr/bin/python
 
 # Copy over src to the container
 WORKDIR /app
-COPY HistoricalQuoteData/ /app/HistoricalQuoteData
+COPY LastPriceSaver/ /app/LastPriceSaver
 
 # Install latest tda-api version; not tagged nor released currently 
 # Eventually once they move onto the next tag after 0.7.1, can install from requirements.txt
@@ -24,4 +24,4 @@ COPY requirements.txt /app/
 RUN python -m pip install -r requirements.txt
 
 # Run app
-CMD python -m HistoricalQuoteData
+CMD python -m LastPriceSaver
