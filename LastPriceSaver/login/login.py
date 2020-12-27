@@ -8,7 +8,6 @@ import tda
 from authlib.oauth2.rfc6749 import OAuth2Token
 
 from LastPriceSaver.config.env import (
-    QUOTE_SYMBOL,
     API_KEY,
     REDIRECT_URI,
     TOKEN_PATH,

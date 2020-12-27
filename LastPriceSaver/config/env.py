@@ -4,7 +4,7 @@ LOG_PATH = os.environ['INTERNAL_LOG_PATH']
 LOG_LEVEL = os.environ['LOG_LEVEL']
 DATA_PATH = os.environ['DATA_PATH']
 
-QUOTE_SYMBOL = os.environ['QUOTE_SYMBOL']
+QUOTE_SYMBOLS = (os.environ['QUOTE_SYMBOLS']).split(',')
 
 API_KEY = os.environ['API_KEY']
 REDIRECT_URI = os.environ['REDIRECT_URI']
