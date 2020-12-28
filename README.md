@@ -4,6 +4,8 @@ Gets specified quote prices every second & saves it to a mysql database.
 
 I can't find 'free' reliable data like this online... So I wrote this containerized app to begin collecting data for me.
 
+You can only get historical data at the minute level from the TDAmeritrade API... Even then, you can only get the last ~2 months of it...
+
 ## Usage
 
 ### Configuration
