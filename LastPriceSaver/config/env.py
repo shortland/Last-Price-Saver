@@ -9,4 +9,5 @@ QUOTE_SYMBOLS = (os.environ['QUOTE_SYMBOLS']).split(',')
 API_KEY = os.environ['API_KEY']
 REDIRECT_URI = os.environ['REDIRECT_URI']
 TOKEN_PATH = os.environ['TOKEN_PATH']
-AUTH_CODE = os.environ['AUTH_CODE']
+
+MYSQL_ROOT_PASSWORD = os.getenv('MYSQL_ROOT_PASSWORD')

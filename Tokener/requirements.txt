@@ -1,0 +1,4 @@
+# tda-api>=0.7.1 # needs 0.7.2 and above... where json becomes main token format
+python-dotenv>=0.15.0
+selenium
+webdriver-manager

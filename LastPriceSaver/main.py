@@ -1,58 +1,107 @@
 import os
 import sys
+import time
 import json
-import pathlib
-import calendar
+import asyncio
 import datetime
-import requests
-import urllib.parse
 
-import tda
+import tdameritrade
+import mysql.connector
 
 from LastPriceSaver.config.env import (
     QUOTE_SYMBOLS,
-    DATA_PATH
+    DATA_PATH,
+    API_KEY,
+    TOKEN_PATH,
+    MYSQL_ROOT_PASSWORD
 )
 from LastPriceSaver.utils.logger import logger
-from LastPriceSaver.login import login
+from LastPriceSaver.utils.secrets_reader import read_refresh_token
+from LastPriceSaver.utils.time import current_milli_time
 
 
 def main() -> None:
     logger.debug("Attempting to create tda-api client")
-    client = login.setup()
+    client = tdameritrade.TDClient(
+        client_id=API_KEY,
+        refresh_token=read_refresh_token(TOKEN_PATH)
+    )
 
-    if client is None:
-        sys.exit(-1)
+    while True:
+        start_time = current_milli_time()
+        time_sec = int(time.time())
 
-    for quote_symbol in QUOTE_SYMBOLS:
-        logger.debug("Start getting data for symbol: {}".format(quote_symbol))
-        year = 2020
-        # Temporary, won't work if current month is '1' (january)
-        for month in range(datetime.datetime.now().month - 1, datetime.datetime.now().month + 1, 1):
-            logger.debug("Start getting data for month: {}".format(month))
-            r = client.get_price_history(
-                quote_symbol,
-                period_type=tda.client.Client.PriceHistory.PeriodType.DAY,
-                frequency_type=tda.client.Client.PriceHistory.FrequencyType.MINUTE,
-                frequency=tda.client.Client.PriceHistory.Frequency.EVERY_MINUTE,
-                start_datetime=datetime.datetime(year, month, 1, 9, 30, 0),
-                end_datetime=datetime.datetime(
-                    year, month, calendar.monthrange(year, month)[1], 16, 0, 0
-                )
+        # Only record data after 9pm and before 5pm
+        # Not exactly 9:30 so we can sleep for a minute at a time...
+        now = datetime.datetime.now()
+        if now.hour < 14 or now.hour > 22:
+            logger.debug("Not time yet... Sleeping for 60s")
+            time.sleep(60)
+            continue
+
+        try:
+            quotes = client.quote(QUOTE_SYMBOLS)
+            asyncio.run(write_quotes_to_db(quotes, start_time, time_sec))
+        except Exception as error:
+            logger.error(
+                "Unable to get quote data for symbols: {}".format(error)
             )
 
-            assert r.status_code == 200, r.raise_for_status()
+        """ Sleeping Calculations """
+        actual_sleep = 1.0 - ((current_milli_time() - start_time) / 1000)
 
-            out_dir = "{}/MINUTE_DATA/{}/{}".format(
-                DATA_PATH,
-                year,
-                datetime.date(year, month, 1).strftime('%B')
+        if actual_sleep <= 0.0:
+            logger.debug(
+                "Not sleeping, sleep was too small: '{}'".format(actual_sleep)
             )
-            pathlib.Path(out_dir).mkdir(parents=True, exist_ok=True)
+            continue
 
-            out_file = "{}/{}.json".format(out_dir, quote_symbol)
-            with open(out_file, 'w') as f:
-                json.dump(r.json(), f)
+        logger.debug("Sleeping for: '{}'".format(actual_sleep))
+        time.sleep(actual_sleep)
+
+
+async def write_quotes_to_db(quotes, time_milli: float, time_sec: int) -> None:
+    """
+    Eventually either use a queue or refresh login details as necessary...
+    It's excessive to login each time.
+    """
+
+    try:
+        db = mysql.connector.connect(
+            host='lps-host',
+            user='root',
+            passwd=MYSQL_ROOT_PASSWORD,
+            database='last_price_saver'
+        )
+        cursor = db.cursor()
+    except Exception as error:
+        logger.error("Unable to create connection to db: {}".format(error))
+        return
+
+    for quote in quotes:
+        try:
+            insert_query = """
+                INSERT INTO last_price
+                    (timestamped, timestamp_milli, symbol, price, json)
+                VALUES
+                    ({0}, {1}, '{2}', {3}, '{4}')
+            """.format(
+                time_sec,
+                time_milli,
+                quote,
+                quotes.get(quote).get('lastPrice'),
+                "test"
+            )
+            cursor.execute(insert_query)
+        except Exception as error:
+            logger.error("Unable to insert into db: {}; {}".format(
+                error, insert_query
+            ))
+
+    try:
+        db.commit()
+    except Exception as error:
+        logger.error("Unable to commit changes to db: {}".format(error))
 
 
 if __name__ == '__main__':

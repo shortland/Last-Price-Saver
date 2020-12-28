@@ -1,7 +1,8 @@
 .vscode/
 .env
 __pycache__/
-token/
+secrets/token.json
 logs/
 .DS_Store
 db/volume/
+tda-api/

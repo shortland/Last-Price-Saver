@@ -1,5 +1,10 @@
 auth:
-	echo some authentication steps here
+	# Install latest tda-api not available elsewhere...
+	git clone https://github.com/alexgolec/tda-api.git
+	python3 -m pip install tda-api/
+
+	python3 -m pip install -r Tokener/requirements.txt
+	python3 Tokener/main.py
 
 build:
 	docker-compose build --no-cache

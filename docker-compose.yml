@@ -4,6 +4,8 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile
+    links:
+      - "lps-db:lps-host"
     ports:
       - "42069:42069"
     env_file:
@@ -11,7 +13,7 @@ services:
     volumes:
       - ./logs:/app/logs
       - ./data:/app/data
-      - ./token:/app/token
+      - ./secrets:/app/secrets
       - ./LastPriceSaver:/app/LastPriceSaver
   lps-db:
     build:

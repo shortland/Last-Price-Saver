@@ -1,2 +1,3 @@
-# tda-api>=0.7.2 # when it's released...
 loguru>=0.5.3
+tdameritrade
+mysql.connector

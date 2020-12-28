@@ -14,11 +14,6 @@ RUN cp /usr/bin/python3 /usr/bin/python
 WORKDIR /app
 COPY LastPriceSaver/ /app/LastPriceSaver
 
-# Install latest tda-api version; not tagged nor released currently 
-# Eventually once they move onto the next tag after 0.7.1, can install from requirements.txt
-RUN git clone https://github.com/alexgolec/tda-api.git
-RUN python -m pip install tda-api/
-
 # Install dependencies
 COPY requirements.txt /app/
 RUN python -m pip install -r requirements.txt

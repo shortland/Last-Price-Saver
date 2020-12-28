@@ -21,10 +21,11 @@ USE `last_price_saver`;
 
 CREATE TABLE IF NOT EXISTS `last_price` (
   `idn` bigint(20) NOT NULL AUTO_INCREMENT,
-  `timestamp` timestamp NOT NULL,
+  `timestamped` bigint(20) NOT NULL,
   `timestamp_milli` bigint(20) NOT NULL,
   `symbol` varchar(6) NOT NULL,
   `price` float NOT NULL,
+  `json` text NOT NULL,
   PRIMARY KEY (`idn`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
