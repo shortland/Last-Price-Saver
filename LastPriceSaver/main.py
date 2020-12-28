@@ -11,7 +11,6 @@ import prometheus_client
 
 from LastPriceSaver.config.env import (
     QUOTE_SYMBOLS,
-    DATA_PATH,
     API_KEY,
     TOKEN_PATH,
     MYSQL_ROOT_PASSWORD,
