@@ -1,3 +1,4 @@
-loguru>=0.5.3
+loguru
 tdameritrade
 mysql.connector
+prometheus_client
