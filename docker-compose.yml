@@ -6,7 +6,9 @@ services:
       dockerfile: ./Dockerfile
     links:
       - "lps-db:lps-host"
+    hostname: "lps"
     ports:
+      - "8765:8765"
       - "42069:42069"
     env_file:
       - .env

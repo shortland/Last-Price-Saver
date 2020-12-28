@@ -20,6 +20,17 @@ from LastPriceSaver.config.env import (
 from LastPriceSaver.utils.time import current_milli_time
 from LastPriceSaver.utils.logger import logger
 from LastPriceSaver.utils.secrets_reader import read_refresh_token
+from LastPriceSaver.utils.metrics import (
+    db_connect_error,
+    db_insert_error,
+    db_commit_error,
+    tda_quotes_error,
+    sleeper_inactive,
+    active_pulse,
+    skipped_sleep,
+    skipped_sleep_duration,
+    time_slept
+)
 
 
 def main() -> None:
@@ -30,7 +41,9 @@ def main() -> None:
     )
 
     logger.debug("Starting prometheus metrics server")
-    prometheus_client.start_http_server(PROMETHEUS_PORT)
+    prometheus_client.start_http_server(
+        int(PROMETHEUS_PORT)
+    )
 
     while True:
         start_time = current_milli_time()
@@ -41,6 +54,7 @@ def main() -> None:
         now = datetime.datetime.now()
         if now.hour < 14 or now.hour > 22:
             logger.debug("Not time yet... Sleeping for 60s")
+            sleeper_inactive.inc()
             time.sleep(60)
             continue
 
@@ -58,12 +72,15 @@ def main() -> None:
         actual_sleep = 1.0 - ((current_milli_time() - start_time) / 1000)
 
         if actual_sleep <= 0.0:
+            skipped_sleep.inc()
+            skipped_sleep_duration.inc(abs(actual_sleep) + 1.0)
             logger.debug(
                 "Not sleeping, sleep was too small: '{}'".format(actual_sleep)
             )
             continue
 
         logger.debug("Sleeping for: '{}'".format(actual_sleep))
+        time_slept.inc(actual_sleep)
         time.sleep(actual_sleep)
 
 
@@ -73,6 +90,7 @@ async def get_and_save_quotes(client: tdameritrade.TDClient, quotes, start_time:
     """
 
     try:
+        active_pulse.inc()
         quotes = client.quote(QUOTE_SYMBOLS)
 
         await write_quotes_to_db(quotes, start_time, time_sec)
@@ -80,6 +98,7 @@ async def get_and_save_quotes(client: tdameritrade.TDClient, quotes, start_time:
         logger.error(
             "Unable to get quote data for symbols: {}".format(error)
         )
+        tda_quotes_error.inc()
 
 
 async def write_quotes_to_db(quotes, time_milli: float, time_sec: int) -> None:
@@ -90,6 +109,7 @@ async def write_quotes_to_db(quotes, time_milli: float, time_sec: int) -> None:
 
     logger.debug("Beginning save data to db")
 
+    # TODO: This essentially creates a new DB connection every second... Which is a waste of resources.
     try:
         db = mysql.connector.connect(
             host='lps-host',
@@ -100,6 +120,7 @@ async def write_quotes_to_db(quotes, time_milli: float, time_sec: int) -> None:
         cursor = db.cursor()
     except Exception as error:
         logger.error("Unable to create connection to db: {}".format(error))
+        db_connect_error.inc()
         return
 
     for quote in quotes:
@@ -121,11 +142,13 @@ async def write_quotes_to_db(quotes, time_milli: float, time_sec: int) -> None:
             logger.error("Unable to insert into db: {}; {}".format(
                 error, insert_query
             ))
+            db_insert_error.inc()
 
     try:
         db.commit()
     except Exception as error:
         logger.error("Unable to commit changes to db: {}".format(error))
+        db_commit_error.inc()
 
 
 if __name__ == '__main__':
