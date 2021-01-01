@@ -68,7 +68,7 @@ def main() -> None:
         )
 
         """ Sleeping Calculations """
-        actual_sleep = 1.0 - ((current_milli_time() - start_time) / 1000)
+        actual_sleep = 1.0 - ((current_milli_time() - start_time) / 1000.0)
 
         if actual_sleep <= 0.0:
             skipped_sleep.inc()

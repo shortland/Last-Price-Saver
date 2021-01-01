@@ -25,3 +25,5 @@ services:
       - .env
     volumes:
       - ./db/volume:/var/lib/mysql
+    ports:
+      - "3306:${MYSQL_EXTERNAL_PORT}"

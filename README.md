@@ -42,6 +42,15 @@ After building, you can run the application simply with:
 make run
 ```
 
+### Exporting
+
+Want to export the data to .CSV format? There's already a small script here that lets you do that by ticker & date (daily).
+You'll be prompted for that information after running the below:
+
+```bash
+make csv
+```
+
 ### Metrics
 
-TODO: ... Currently being implemented.
+WIP.

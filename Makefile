@@ -6,14 +6,15 @@ auth:
 	python3 -m pip install -r Tokener/requirements.txt
 	python3 Tokener/main.py
 
+csv:
+	python3 -m pip install -r CsvExporter/requirements.txt
+	python3 CsvExporter/main.py
+
 build:
 	docker-compose build --no-cache
 
 run:
 	docker-compose up -d
-
-# sql:
-# 	docker exec -it maria_db bash
 
 clean:
 	docker-compose down
