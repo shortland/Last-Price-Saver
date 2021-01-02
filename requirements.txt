@@ -1,4 +1,4 @@
 loguru
 tdameritrade
-mysql.connector
+mysql-connector
 prometheus_client

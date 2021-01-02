@@ -1,5 +1,6 @@
 import os
 import pathlib
+import datetime
 
 import dotenv
 import mysql.connector
@@ -19,7 +20,10 @@ def main() -> None:
 
     try:
         db = mysql.connector.connect(
-            host='lps-host',
+            # TODO: $(sudo docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' last-price-saver_lps-db_1)
+            # Figure out a better way of doing then other than getting host via above...
+            # I guess throwing this script into a container then using --link would be best...
+            host='172.19.0.2',
             user='root',
             passwd=os.getenv('MYSQL_ROOT_PASSWORD'),
             database='last_price_saver'
@@ -32,9 +36,9 @@ def main() -> None:
     for symbol in (os.getenv('QUOTE_SYMBOLS')).split(','):
         try:
             select_query = """
-                SELECT * 
+                SELECT timestamped, price
                 FROM (
-                    SELECT FROM_UNIXTIME(timestamped) as ts, price 
+                    SELECT FROM_UNIXTIME(timestamped) as ts, timestamped, price 
                     FROM last_price 
                     WHERE 
                         symbol = '{3}'
@@ -45,7 +49,6 @@ def main() -> None:
                     month(t.ts) = {1}
                     AND 
                     day(t.ts) = {2}
-                LIMIT 10;
             """.format(
                 year,
                 month,
@@ -61,7 +64,11 @@ def main() -> None:
             data_items = cursor.fetchall()
 
             for item in data_items:
-                print(item)
+                dir_path = "exported-data/{}".format(symbol)
+                pathlib.Path(dir_path).mkdir(parents=True, exist_ok=True)
+
+                with open("{}/{}-{}-{}.csv".format(dir_path, year, month, day), 'a') as out:
+                    out.write("{},{}\n".format(item[0], item[1]))
 
         except Exception as error:
             print("Unable to get data for y/m/d [symbol] - {}/{}/{} [{}]: {}".format(
