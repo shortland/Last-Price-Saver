@@ -5,6 +5,7 @@ import json
 import asyncio
 import datetime
 
+import pytz
 import tdameritrade
 import mysql.connector
 import prometheus_client
@@ -50,8 +51,11 @@ def main() -> None:
 
         # Only record data after 9pm and before 5pm
         # Not exactly 9:30 so we can sleep for a minute at a time...
-        now = datetime.datetime.now()
-        if now.hour < 14 or now.hour > 22:
+        # Additionally, if the weekday is 5 (saturday) or 6 (sunday) - sleep.
+        now = datetime.datetime.now(pytz.utc)
+        if now.hour < 14 or now.hour > 22 or \
+            now.weekday() is 6 or now.weekday() is 5:
+            
             logger.debug("Not time yet... Sleeping for 60s")
             sleeper_inactive.inc()
             time.sleep(60)
