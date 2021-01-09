@@ -12,6 +12,9 @@ csv:
 import:
 	docker-compose up -d csv-importer
 
+merge:
+	docker-compose up -d algo-merger
+
 build:
 	docker-compose build --no-cache
 

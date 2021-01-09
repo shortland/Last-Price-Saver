@@ -48,3 +48,14 @@ services:
     volumes:
       - ./algo-data:/app/algo-data
       - ./AlgoCsvImporter:/app/AlgoCsvImporter
+  algo-merger:
+    build:
+      context: .
+      dockerfile: ./AlgoMerger/Dockerfile
+    links:
+      - "lps-db:lps-host"
+    env_file:
+      - .env
+    volumes:
+      - ./merged-data:/app/merged-data
+      - ./AlgoMerger:/app/AlgoMerger
