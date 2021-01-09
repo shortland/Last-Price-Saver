@@ -10,7 +10,7 @@ csv:
 	docker-compose up csv-exporter
 
 import:
-	docker-compose up csv-importer
+	docker-compose up -d csv-importer
 
 build:
 	docker-compose build --no-cache
