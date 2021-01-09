@@ -74,7 +74,7 @@ def main() -> None:
                         );
                     """.format(
                         name_split[1],
-                        name_split[0],
+                        name_split[0].split("/")[1],
                         algo_file,
                         row[0],
                         row[1],
