@@ -7,14 +7,16 @@ auth:
 	python3 Tokener/main.py
 
 csv:
-	python3 -m pip install -r CsvExporter/requirements.txt
-	python3 CsvExporter/main.py
+	docker-compose up csv-exporter
+
+import:
+	docker-compose up csv-importer
 
 build:
 	docker-compose build --no-cache
 
 run:
-	docker-compose up -d
+	docker-compose up -d lps-db main-box
 
 clean:
 	docker-compose down

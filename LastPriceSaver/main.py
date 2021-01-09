@@ -54,8 +54,8 @@ def main() -> None:
         # Additionally, if the weekday is 5 (saturday) or 6 (sunday) - sleep.
         now = datetime.datetime.now(pytz.utc)
         if now.hour < 14 or now.hour > 22 or \
-            now.weekday() is 6 or now.weekday() is 5:
-            
+                now.weekday() is 6 or now.weekday() is 5:
+
             logger.debug("Not time yet... Sleeping for 60s")
             sleeper_inactive.inc()
             time.sleep(60)

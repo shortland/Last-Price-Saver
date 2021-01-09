@@ -27,3 +27,24 @@ services:
       - ./db/volume:/var/lib/mysql
     ports:
       - "3309:${MYSQL_EXTERNAL_PORT}"
+  csv-exporter:
+    build:
+      context: .
+      dockerfile: ./CsvExporter/Dockerfile
+    links:
+      - "lps-db:lps-host"
+    env_file:
+      - .env
+    volumes:
+      - ./exported-data:/app/exported-data
+  csv-importer:
+    build:
+      context: .
+      dockerfile: ./AlgoCsvImporter/Dockerfile
+    links:
+      - "lps-db:lps-host"
+    env_file:
+      - .env
+    volumes:
+      - ./algo-data:/app/algo-data
+      - ./AlgoCsvImporter:/app/AlgoCsvImporter

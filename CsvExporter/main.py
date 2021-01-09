@@ -10,20 +10,13 @@ def main() -> None:
     env_path = pathlib.Path('.') / '.env'
     dotenv.load_dotenv(dotenv_path=env_path)
 
-    print("You'll be prompted for the specified date & data you wish to export.")
-    year = int(input("Data for which year?:"))
-    month = int(input("Data for which month? (numerical):"))
-    day = int(input("Data for which day?:"))
-    # ticker = input(
-    #     "Data for which stock? (one ticker symbol):"
-    # )
+    year = int(datetime.datetime.today().strftime('%Y'))
+    month = int(datetime.datetime.today().strftime('%m'))
+    day = int(datetime.datetime.today().strftime('%d'))
 
     try:
         db = mysql.connector.connect(
-            # TODO: $(sudo docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' last-price-saver_lps-db_1)
-            # Figure out a better way of doing then other than getting host via above...
-            # I guess throwing this script into a container then using --link would be best...
-            host='172.19.0.2',
+            host='lps-host',
             user='root',
             passwd=os.getenv('MYSQL_ROOT_PASSWORD'),
             database='last_price_saver'
