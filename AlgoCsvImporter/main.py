@@ -96,8 +96,10 @@ def main() -> None:
 
                     cursor.execute(insert_query)
                 except Exception as err:
-                    print("Unable to execute insert query: {}".format(err))
-                    sys.exit()
+                    print("Unable to execute insert query: {}; error: {}".format(
+                        insert_query, err
+                    ))
+                    continue
 
         db.commit()
 
