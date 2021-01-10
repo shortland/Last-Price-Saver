@@ -33,19 +33,20 @@ def main() -> None:
         try:
             select_query = """
                 SELECT 
-                    quote, 
-                    buy_constraint_ath, 
-                    buy_constraint_before_timing, 
-                    buy_constraint_after_timing, 
-                    buy_algo, 
-                    sell_algo, 
-                    starting_cash, 
-                    order_size_cash_percent, 
-                    AVG(increase_percent) as increase_percent_avg 
+                    a.quote, 
+                    a.buy_constraint_ath, 
+                    a.buy_constraint_before_timing, 
+                    a.buy_constraint_after_timing, 
+                    a.buy_algo, 
+                    a.sell_algo, 
+                    a.starting_cash, 
+                    a.order_size_cash_percent, 
+                    AVG(a.increase_percent) as increase_percent_avg,
+                    GROUP_CONCAT(DISTINCT CONCAT(ymd, ',', increase_percent))
                 FROM 
-                    algo_data 
+                    algo_data a
                 WHERE 
-                    quote = '{0}' 
+                    quote = '{}' 
                 GROUP BY 
                     quote, 
                     buy_constraint_ath, 
@@ -56,7 +57,8 @@ def main() -> None:
                     starting_cash, 
                     order_size_cash_percent
                 ORDER BY 
-                    increase_percent_avg DESC
+                    increase_percent_avg
+                DESC
             """.format(
                 symbol
             )
@@ -70,7 +72,9 @@ def main() -> None:
 
             for item in data_items:
                 with open("{}/{}.csv".format(dir_path, symbol), 'a') as out:
-                    out.write("{}\n".format(item))
+                    out.write("{}\n".format(
+                        ",".join(item)
+                    ))
 
         except Exception as error:
             print("Unable to get data for [{}]: {}".format(
