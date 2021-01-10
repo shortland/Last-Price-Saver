@@ -69,11 +69,14 @@ def main() -> None:
 
             cursor.execute(select_query)
             data_items = cursor.fetchall()
+            
+            with open("{}/{}.csv".format(dir_path, symbol), 'w') as out:
+                out.write("Quote,Buy Constraint ATH,Buy Constraint Before Timing,Buy Constraint After Timing,Buy Algo,Sell Algo,Starting Cash,Order Size Cash Percent,Average Percent Increase, ... ind. values ...")
 
             for item in data_items:
                 with open("{}/{}.csv".format(dir_path, symbol), 'a') as out:
                     out.write("{}\n".format(
-                        ",".join(item)
+                        ','.join(map(str, item))
                     ))
 
         except Exception as error:
