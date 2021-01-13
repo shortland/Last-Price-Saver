@@ -69,7 +69,7 @@ def main() -> None:
 
             cursor.execute(select_query)
             data_items = cursor.fetchall()
-            
+
             with open("{}/{}.csv".format(dir_path, symbol), 'w') as out:
                 out.write("Quote,Buy Constraint ATH,Buy Constraint Before Timing,Buy Constraint After Timing,Buy Algo,Sell Algo,Starting Cash,Order Size Cash Percent,Average Percent Increase, ... ind. values ...\n")
 

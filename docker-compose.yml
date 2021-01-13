@@ -37,6 +37,7 @@ services:
       - .env
     volumes:
       - ./exported-data:/app/exported-data
+      - ./CsvExporter:/app/CsvExporter
   csv-importer:
     build:
       context: .
