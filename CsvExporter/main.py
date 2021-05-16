@@ -22,17 +22,6 @@ def main() -> None:
     db_host = sys.argv[4]
     db_pass = sys.argv[5]
 
-    print(os.getenv('QUOTE_SYMBOLS'))
-    
-    print(year)
-    print(month)
-    print(day)
-
-    print(db_host)
-    print(db_pass)
-    
-    sys.exit()
-
     try:
         db = mysql.connector.connect(
             host=db_host,
