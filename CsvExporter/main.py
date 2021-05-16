@@ -1,24 +1,43 @@
 import os
+import sys
 import pathlib
 import datetime
 
 import dotenv
 import mysql.connector
 
-
 def main() -> None:
     env_path = pathlib.Path('.') / '.env'
     dotenv.load_dotenv(dotenv_path=env_path)
 
-    year = int(datetime.datetime.today().strftime('%Y'))
-    month = int(datetime.datetime.today().strftime('%m'))
-    day = int(datetime.datetime.today().strftime('%d'))
+    #year = int(datetime.datetime.today().strftime('%Y'))
+    #month = int(datetime.datetime.today().strftime('%m'))
+    #day = int(datetime.datetime.today().strftime('%d'))
+    #days = [1,2,3,4,5,8,9,10,11,12,16,17,18,19,22]
+
+    year = int(sys.argv[1])
+    month = int(sys.argv[2])
+    day = int(sys.argv[3])
+
+    db_host = sys.argv[4]
+    db_pass = sys.argv[5]
+
+    print(os.getenv('QUOTE_SYMBOLS'))
+    
+    print(year)
+    print(month)
+    print(day)
+
+    print(db_host)
+    print(db_pass)
+    
+    sys.exit()
 
     try:
         db = mysql.connector.connect(
-            host='lps-host',
+            host=db_host,
             user='root',
-            passwd=os.getenv('MYSQL_ROOT_PASSWORD'),
+            passwd=db_pass,
             database='last_price_saver'
         )
         cursor = db.cursor()
