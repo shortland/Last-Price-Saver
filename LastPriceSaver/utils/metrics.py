@@ -16,6 +16,10 @@ tda_quotes_error = prometheus_client.Counter(
     'tda_quotes_error', 'Times it failed to get quote data from TDA'
 )
 
+critical_quote_error = prometheus_client.Counter(
+    'critical_quote_error', 'Times there was an error when asyncly trying to get and insert data, this may cause some sort of zombie process issue'
+)
+
 sleeper_inactive = prometheus_client.Counter(
     'sleeper_inactive', 'Times the script went to sleep because it was not within time range'
 )

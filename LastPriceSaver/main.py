@@ -25,6 +25,7 @@ from LastPriceSaver.utils.metrics import (
     db_insert_error,
     db_commit_error,
     tda_quotes_error,
+    critical_quote_error,
     sleeper_inactive,
     active_pulse,
     skipped_sleep,
@@ -48,10 +49,6 @@ def main() -> None:
     while True:
         start_time = current_milli_time()
         time_sec = int(time.time())
-
-        # Only record data after 9pm and before 5pm
-        # Not exactly 9:30 so we can sleep for a minute at a time...
-        # Additionally, if the weekday is 5 (saturday) or 6 (sunday) - sleep.
         now = datetime.datetime.now(pytz.utc)
         if now.hour < 10 or now.hour > 23 or now.weekday() == 6 or now.weekday() == 5:
             logger.debug("Not time yet... Sleeping for 360s")
@@ -60,14 +57,22 @@ def main() -> None:
             continue
 
         logger.debug("Getting quotes data")
-        asyncio.run(
-            get_and_save_quotes(
-                client,
-                QUOTE_SYMBOLS,
-                start_time,
-                time_sec
+        try:
+            asyncio.run(
+                get_and_save_quotes(
+                    client,
+                    QUOTE_SYMBOLS,
+                    start_time,
+                    time_sec
+                )
             )
-        )
+        except Exception as error:
+            logger.error(
+                "There was a problem getting & saving quote data %s".format(
+                    error
+                )
+            )
+            critical_quote_error.inc()
 
         """ Sleeping Calculations """
         actual_sleep = 1.0 - ((current_milli_time() - start_time) / 1000.0)

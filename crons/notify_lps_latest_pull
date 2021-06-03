@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+
+###
+# Check at 7:05AM ET to see if there's a new row in the database.
+# If not, then TDA is probably expired and need to get a new one.
+# Send email or text if possible.
+###
+
+# Need to do this to get access to ssmtp & mysql
+export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin"
+
+# Secret
+LPS_PASSWORD="P0t4t03Fr3nc4fr1e3!"
+ADDRESS_DEST="6464643484@txt.att.net"
+ABSOLUTE_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+MAIL_HEADER_PATH="${ABSOLUTE_PATH}/mail_header.txt"
+
+echo "running from $ABSOLUTE_PATH";
+
+DB_CONTAINER_NAME=`docker ps --format '{{.Names}}' --filter name=^/last-price-saver_lps-db`
+if [ -z "$DB_CONTAINER_NAME" ]; then
+    MSG="ERROR: It appears the the db container may not be currently running";
+    (cat $MAIL_HEADER_PATH && echo "$MSG") | ssmtp $ADDRESS_DEST
+    exit 1;
+fi
+echo "DB_CONTAINER_NAME is set to '$DB_CONTAINER_NAME'\n" >> /tmp/notify_lps_pull_$(date +"%Y-%m-%d")
+
+DB_CONTAINER_IP=`docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $DB_CONTAINER_NAME`
+if [ -z "$DB_CONTAINER_IP" ]; then
+    MSG="ERROR: Unable to get the ip address of the db container";
+    (cat $MAIL_HEADER_PATH && echo "$MSG") | ssmtp $ADDRESS_DEST
+    exit 1;
+fi
+echo "DB_CONTAINER_IP is set to '$DB_CONTAINER_IP'\n" >> /tmp/notify_lps_pull_$(date +"%Y-%m-%d")
+
+CURRENT_YEAR=$((10#$(date +"%Y")))
+echo "The current year as number: $CURRENT_YEAR\n" >> /tmp/notify_lps_pull_$(date +"%Y-%m-%d")
+
+CURRENT_MONTH=$((10#$(date +"%m")))
+echo "The current month as number: $CURRENT_MONTH\n" >> /tmp/notify_lps_pull_$(date +"%Y-%m-%d")
+
+CURRENT_DAY=$((10#$(date +"%d")))
+echo "The current day as number: $CURRENT_DAY\n" >> /tmp/notify_lps_pull_$(date +"%Y-%m-%d")
+
+
+# MYSQL='mysql AMORE -u username -ppassword -h localhost -e'
+# QUERY="SELECT "'*'" FROM amoreconfig" ;# <-- "double"'single'"double"
+# eval $MYSQL "'$QUERY'"
+
+SELECT_CMD="mysql -uroot -h$DB_CONTAINER_IP -p$LPS_PASSWORD last_price_saver -sN -e 'SELECT COUNT(1) FROM last_price WHERE symbol = \"TQQQ\" AND year(FROM_UNIXTIME(timestamped)) = $CURRENT_YEAR AND day(FROM_UNIXTIME(timestamped)) = $CURRENT_DAY AND month(FROM_UNIXTIME(timestamped)) = $CURRENT_MONTH';"
+DAY_AMT=$(eval $SELECT_CMD)
+if [[ "$DAY_AMT" == 0 ]]; then
+    MSG="ERROR: There appears to be no rows from today in the DB. TDA api token expired? (YEAR:${CURRENT_YEAR}, MONTH:${CURRENT_MONTH}, DAY:${CURRENT_DAY})";
+    (cat $MAIL_HEADER_PATH && echo "$MSG") | ssmtp $ADDRESS_DEST
+    exit 1;
+fi
+echo "Rows for today so far: $DAY_AMT\n" >> /tmp/notify_lps_pull_$(date +"%Y-%m-%d")
