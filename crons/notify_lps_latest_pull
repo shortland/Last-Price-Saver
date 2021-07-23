@@ -42,11 +42,6 @@ echo "The current month as number: $CURRENT_MONTH\n" >> /tmp/notify_lps_pull_$(d
 CURRENT_DAY=$((10#$(date +"%d")))
 echo "The current day as number: $CURRENT_DAY\n" >> /tmp/notify_lps_pull_$(date +"%Y-%m-%d")
 
-
-# MYSQL='mysql AMORE -u username -ppassword -h localhost -e'
-# QUERY="SELECT "'*'" FROM amoreconfig" ;# <-- "double"'single'"double"
-# eval $MYSQL "'$QUERY'"
-
 SELECT_CMD="mysql -uroot -h$DB_CONTAINER_IP -p$LPS_PASSWORD last_price_saver -sN -e 'SELECT COUNT(1) FROM last_price WHERE symbol = \"TQQQ\" AND year(FROM_UNIXTIME(timestamped)) = $CURRENT_YEAR AND day(FROM_UNIXTIME(timestamped)) = $CURRENT_DAY AND month(FROM_UNIXTIME(timestamped)) = $CURRENT_MONTH';"
 DAY_AMT=$(eval $SELECT_CMD)
 if [[ "$DAY_AMT" == 0 ]]; then

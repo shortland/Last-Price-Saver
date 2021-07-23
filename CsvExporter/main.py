@@ -3,24 +3,17 @@ import sys
 import pathlib
 import datetime
 
-import dotenv
 import mysql.connector
 
+
 def main() -> None:
-    env_path = pathlib.Path('.') / '.env'
-    dotenv.load_dotenv(dotenv_path=env_path)
-
-    #year = int(datetime.datetime.today().strftime('%Y'))
-    #month = int(datetime.datetime.today().strftime('%m'))
-    #day = int(datetime.datetime.today().strftime('%d'))
-    #days = [1,2,3,4,5,8,9,10,11,12,16,17,18,19,22]
-
     year = int(sys.argv[1])
     month = int(sys.argv[2])
     day = int(sys.argv[3])
 
     db_host = sys.argv[4]
     db_pass = sys.argv[5]
+    symbols = sys.argv[6]
 
     try:
         db = mysql.connector.connect(
@@ -34,22 +27,19 @@ def main() -> None:
         print("Unable to create connection to db: {}".format(error))
         return
 
-    for symbol in (os.getenv('QUOTE_SYMBOLS')).split(','):
+    for symbol in symbols.split(','):
         try:
             select_query = """
                 SELECT timestamped, price
-                FROM (
-                    SELECT FROM_UNIXTIME(timestamped) as ts, timestamped, price 
-                    FROM last_price 
-                    WHERE 
-                        symbol = '{3}'
-                ) as t 
-                WHERE 
-                    year(t.ts) = {0}
+                FROM last_price
+                WHERE
+                    symbol = '{3}'
                     AND
-                    month(t.ts) = {1}
+                    year(FROM_UNIXTIME(timestamped)) = {0}
+                    AND
+                    month(FROM_UNIXTIME(timestamped)) = {1}
                     AND 
-                    day(t.ts) = {2}
+                    day(FROM_UNIXTIME(timestamped)) = {2}
             """.format(
                 year,
                 month,
