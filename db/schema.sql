@@ -29,6 +29,34 @@ CREATE TABLE IF NOT EXISTS `last_price` (
   PRIMARY KEY (`idn`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+--
+-- Table structure for table `algo_data`
+--
+
+CREATE TABLE IF NOT EXISTS `algo_data` (
+  `idn` bigint(20) NOT NULL AUTO_INCREMENT,
+  `ymd` varchar(20) NOT NULL,
+  `quote` varchar(10) NOT NULL,
+  `file_name` varchar(100) NOT NULL,
+  `total_trades` int NOT NULL,
+  `buy_constraint_ath` varchar(100) NOT NULL,
+  `buy_constraint_before_timing` varchar(100) NOT NULL,
+  `buy_constraint_after_timing` varchar(100) NOT NULL,
+  `buy_algo` varchar(100) NOT NULL,
+  `sell_algo` varchar(100) NOT NULL,
+  `canceled_buys_count` int NOT NULL,
+  `insufficient_funds_count` int NOT NULL,
+  `order_size` int NOT NULL,
+  `starting_cash` float NOT NULL,
+  `ending_cash` float NOT NULL,
+  `stock_leftover` int NOT NULL,
+  `total_value` float NOT NULL,
+  `increase_dollars` float NOT NULL,
+  `increase_percent` float NOT NULL,
+  `order_size_cash_percent` float NOT NULL,
+  PRIMARY KEY (`idn`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

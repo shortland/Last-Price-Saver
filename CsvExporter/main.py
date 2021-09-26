@@ -1,31 +1,25 @@
 import os
+import sys
 import pathlib
 import datetime
 
-import dotenv
 import mysql.connector
 
 
 def main() -> None:
-    env_path = pathlib.Path('.') / '.env'
-    dotenv.load_dotenv(dotenv_path=env_path)
+    year = int(sys.argv[1])
+    month = int(sys.argv[2])
+    day = int(sys.argv[3])
 
-    print("You'll be prompted for the specified date & data you wish to export.")
-    year = int(input("Data for which year?:"))
-    month = int(input("Data for which month? (numerical):"))
-    day = int(input("Data for which day?:"))
-    # ticker = input(
-    #     "Data for which stock? (one ticker symbol):"
-    # )
+    db_host = sys.argv[4]
+    db_pass = sys.argv[5]
+    symbols = sys.argv[6]
 
     try:
         db = mysql.connector.connect(
-            # TODO: $(sudo docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' last-price-saver_lps-db_1)
-            # Figure out a better way of doing then other than getting host via above...
-            # I guess throwing this script into a container then using --link would be best...
-            host='172.19.0.2',
+            host=db_host,
             user='root',
-            passwd=os.getenv('MYSQL_ROOT_PASSWORD'),
+            passwd=db_pass,
             database='last_price_saver'
         )
         cursor = db.cursor()
@@ -33,22 +27,19 @@ def main() -> None:
         print("Unable to create connection to db: {}".format(error))
         return
 
-    for symbol in (os.getenv('QUOTE_SYMBOLS')).split(','):
+    for symbol in symbols.split(','):
         try:
             select_query = """
                 SELECT timestamped, price
-                FROM (
-                    SELECT FROM_UNIXTIME(timestamped) as ts, timestamped, price 
-                    FROM last_price 
-                    WHERE 
-                        symbol = '{3}'
-                ) as t 
-                WHERE 
-                    year(t.ts) = {0}
+                FROM last_price
+                WHERE
+                    symbol = '{3}'
                     AND
-                    month(t.ts) = {1}
+                    year(FROM_UNIXTIME(timestamped)) = {0}
+                    AND
+                    month(FROM_UNIXTIME(timestamped)) = {1}
                     AND 
-                    day(t.ts) = {2}
+                    day(FROM_UNIXTIME(timestamped)) = {2}
             """.format(
                 year,
                 month,

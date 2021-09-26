@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+###
+# Check at 7:10AM ET to see if the log file created by notify_lps_latest_pull exists for today.
+# Checks if the main alert service actually succeeded...
+# (why didn't i just check exit code lol)
+###
+
+# Need to do this to get access to ssmtp
+export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/snap/bin"
+
+ADDRESS_DEST="6464643484@txt.att.net"
+ABSOLUTE_PATH="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+MAIL_HEADER_PATH="${ABSOLUTE_PATH}/mail_header.txt"
+
+echo "running from $ABSOLUTE_PATH";
+
+if [ ! -f /tmp/notify_lps_pull_$(date +"%Y-%m-%d") ]; then
+    MSG="ERROR: The log file for lps notifier does not exist - this implies the alert service failed to check";
+    (cat $MAIL_HEADER_PATH && echo "$MSG") | ssmtp $ADDRESS_DEST
+    exit 1;
+fi
+
+cat /tmp/notify_lps_pull_$(date +"%Y-%m-%d") | grep -oE "Rows for today so far: [0-9]+"
+if [[ "$?" != 0 ]]; then
+    MSG="ERROR: Could not locate line which specifies rows found";
+    (cat $MAIL_HEADER_PATH && echo "$MSG") | ssmtp $ADDRESS_DEST
+    exit 1;
+fi

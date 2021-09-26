@@ -9,6 +9,9 @@ from webdriver_manager.chrome import ChromeDriverManager
 env_path = pathlib.Path('.') / '.env'
 dotenv.load_dotenv(dotenv_path=env_path)
 
+print(os.getenv('API_KEY'))
+print(os.getenv('TOKEN_FILE_NAME'))
+
 tda.auth.client_from_login_flow(
     webdriver=webdriver.Chrome(ChromeDriverManager().install()),
     api_key=os.getenv('API_KEY'),
